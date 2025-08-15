@@ -1,112 +1,147 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include  <string.h>
 
-//Defining the structure of the node
-typedef struct node {
-    int roll_no;
+struct Node {
+    int roll;
     char name[20];
-    int total_mark;
-    struct node *next;
-} node;
+    int age;
+    struct Node* next;
+};
 
-//Inserting a new node at the beginning of the list
-void insert(node **head, int roll_no, char *name, int total_mark) {
-    node *new_node = (node *)malloc(sizeof(node));
-    new_node->roll_no = roll_no;
-    strcpy(new_node->name, name);
-    new_node->total_mark = total_mark;
-    new_node->next = *head;
-    *head = new_node;
-    printf("\nInserted Successfully!\n");
-}
+struct Node* start = NULL;
 
-//Deleting a node from the list based on the roll number
-void delete(node **head, int roll_no) {
-    node *temp = *head, *prev;
-    if (temp != NULL && temp->roll_no == roll_no) {
-        *head = temp->next;
-        free(temp);
-        printf("\nDeleted Successfully!\n");
-        return;
-    }
-    while (temp != NULL && temp->roll_no != roll_no) {
-        prev = temp;
-        temp = temp->next;
-    }
+void create() {
+    struct Node* temp, * ptr;
+    temp = (struct Node*)malloc(sizeof(struct Node));
     if (temp == NULL) {
-        printf("\nNo Record Found!\n");
+        printf("Out of Memory Space\n");
         return;
     }
-    prev->next = temp->next;
-    free(temp);
-    printf("\nDeleted Successfully!\n");
+    printf("Enter the roll number: ");
+    scanf("%d", &temp->roll);
+    printf("Enter the name: ");
+    scanf("%s", temp->name);
+    printf("Enter the age: ");
+    scanf("%d", &temp->age);
+    temp->next = NULL;
+    if (start == NULL) {
+        start = temp;
+    } else {
+        ptr = start;
+        while (ptr->next != NULL) {
+            ptr = ptr->next;
+        }
+        ptr->next = temp;
+    }
 }
 
-//Searching for a node in the list based on the roll number
-void search(node *head, int roll_no) {
-    node *temp = head;
-    while (temp != NULL) {
-        if (temp->roll_no == roll_no) {
-            printf("\nRoll No: %d\nName: %s\nTotal Mark: %d\n", temp->roll_no, temp->name, temp->total_mark);
+void display() {
+    struct Node* ptr;
+    if (start == NULL) {
+        printf("List is empty\n");
+        return;
+    } else {
+        ptr = start;
+        printf("The list is:\n");
+        while (ptr != NULL) {
+            printf("Roll: %d, Name: %s, Age: %d\n", ptr->roll, ptr->name, ptr->age);
+            ptr = ptr->next;
+        }
+    }
+}
+
+void insert_intermediate() {
+    struct Node* temp, * ptr, * prev;
+    int pos, i;
+    temp = (struct Node*)malloc(sizeof(struct Node));
+    if (temp == NULL) {
+        printf("Out of Memory Space\n");
+        return;
+    }
+    printf("Enter the position to insert: ");
+    scanf("%d", &pos);
+    printf("Enter the roll number: ");
+    scanf("%d", &temp->roll);
+    printf("Enter the name: ");
+    scanf("%s", temp->name);
+    printf("Enter the age: ");
+    scanf("%d", &temp->age);
+    temp->next = NULL;
+    if (pos == 0) {
+        temp->next = start;
+        start = temp;
+    } else {
+        ptr = start;
+        for (i = 0; i < pos - 1; i++) {
+            if (ptr == NULL) {
+                printf("Position not found\n");
+                return;
+            }
+            prev = ptr;
+            ptr = ptr->next;
+        }
+        temp->next = ptr;
+        prev->next = temp;
+    }
+}
+
+void delete_intermediate() {
+    struct Node* temp, * ptr, * prev;
+    int pos, i;
+    printf("Enter the position to delete: ");
+    scanf("%d", &pos);
+    if (start == NULL) {
+        printf("List is empty\n");
+        return;
+    } else if (pos == 0) {
+        temp = start;
+        start = start->next;
+        printf("Deleted roll: %d, Name: %s, Age: %d\n", temp->roll, temp->name, temp->age);
+        free(temp);
+    } else {
+        temp = start;
+        for (i = 0; i < pos - 1; i++) {
+            if (temp == NULL) {
+                printf("Position not found\n");
+                return;
+            }
+            ptr = temp;
+            temp = temp->next;
+        }
+        if (temp == NULL) {
+            printf("Position not found\n");
             return;
         }
-        temp = temp->next;
-    }
-    printf("\nNo Record Found!\n");
-}
-
-//Displaying the linked list
-void display(node *head) {
-    node *temp = head;
-    printf("\nDisplaying Records:\n");
-    while (temp != NULL) {
-        printf("\nRoll No: %d\nName: %s\nTotal Mark: %d\n", temp->roll_no, temp->name, temp->total_mark);
-        temp = temp->next;
+        ptr->next = temp->next;
+        printf("Deleted roll: %d, Name: %s, Age: %d\n", temp->roll, temp->name, temp->age);
+        free(temp);
     }
 }
 
 int main() {
-    node *head = NULL;
-    int choice, roll_no, total_mark;
-    char name[20];
-
+    int choice;
     while (1) {
-        printf("\n1. Insert\n2. Delete\n3. Search\n4. Display\n5. Exit\n\nEnter your choice: ");
+        printf("1. Create\n2. Display\n3. Insert in intermediate\n4. Delete from intermediate\n5. Exit\n");
+        printf("Enter your choice: ");
         scanf("%d", &choice);
-
         switch (choice) {
             case 1:
-                printf("\nEnter Roll No: ");
-                scanf("%d", &roll_no);
-                printf("Enter Name: ");
-                scanf("%s", name);
-                printf("Enter Total Mark: ");
-                scanf("%d", &total_mark);
-                insert(&head, roll_no, name, total_mark);
+                create();
                 break;
-
             case 2:
-                printf("\nEnter Roll No: ");
-                scanf("%d", &roll_no);
-                delete(&head, roll_no);
+                display();
                 break;
-
             case 3:
-                printf("\nEnter Roll No: ");
-                scanf("%d", &roll_no);
-                search(head, roll_no);
+                insert_intermediate();
                 break;
-
             case 4:
-                display(head);
+                delete_intermediate();
                 break;
-
             case 5:
                 exit(0);
-
             default:
-                printf("\nInvalid Choice!\n");
+                printf("Invalid choice\n");
         }
     }
     return 0;
